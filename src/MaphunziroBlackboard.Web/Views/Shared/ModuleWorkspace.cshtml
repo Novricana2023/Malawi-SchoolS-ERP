@@ -1,0 +1,37 @@
+@model ModuleWorkspaceViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-start gap-3 mb-4">
+            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                <i class="fas @Model.Icon fa-lg"></i>
+            </div>
+            <div>
+                <h1 class="h4 mb-2 fw-bold">@Model.Title</h1>
+                <p class="text-muted mb-0">@Model.Description</p>
+            </div>
+        </div>
+
+        @if (Model.Highlights.Count > 0)
+        {
+            <ul class="list-group list-group-flush border rounded-3 mb-4">
+                @foreach (var line in Model.Highlights)
+                {
+                    <li class="list-group-item"><i class="fas fa-check text-success me-2"></i>@line</li>
+                }
+            </ul>
+        }
+
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary" href="/Dashboard"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a>
+            <a class="btn btn-outline-secondary" href="/Courses"><i class="fas fa-book me-1"></i> Courses</a>
+            @if (User.IsInRole("Teacher"))
+            {
+                <a class="btn btn-outline-secondary" href="/Teaching"><i class="fas fa-chalkboard-teacher me-1"></i> Teaching</a>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,140 @@
+@using MaphunziroBlackboard.Web.Models
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Faculty workspace";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(120deg, var(--primary-color, #0d6efd), var(--earth, #1a5f4a));">
+                <div class="card-body text-white py-4">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div>
+                            <h1 class="h3 mb-1 fw-bold"><i class="fas fa-chalkboard-teacher me-2"></i>Faculty workspace</h1>
+                            <p class="mb-0 opacity-90">Plan lessons, manage courses, and follow up on learner work — your teaching hub.</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a class="btn btn-light btn-sm" href="/Courses"><i class="fas fa-book me-1"></i> Courses</a>
+                            <a class="btn btn-outline-light btn-sm" href="/Assignments"><i class="fas fa-tasks me-1"></i> Assignments</a>
+                            <a class="btn btn-outline-light btn-sm" href="/Calendar"><i class="fas fa-calendar me-1"></i> Calendar</a>
+                            <a class="btn btn-outline-light btn-sm" href="/Dashboard"><i class="fas fa-home me-1"></i> Overview</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-book-open text-primary me-2"></i>Your courses</h5>
+                    @if (Model.MyCourses.Any())
+                    {
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var c in Model.MyCourses.Take(8))
+                            {
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Details", "Courses", new { id = c.Id })" class="text-decoration-none">@c.Title</a>
+                                    <span class="text-muted small">(@c.Code)</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No courses assigned yet. Your school admin will link you to classes and subjects.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-school text-primary me-2"></i>Classes</h5>
+                    @if (Model.MyClasses.Any())
+                    {
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var cl in Model.MyClasses.Take(10))
+                            {
+                                <li class="mb-1"><span class="badge bg-secondary bg-opacity-25 text-dark">@cl.Name</span></li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">Class assignments will show here once configured.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-inbox text-primary me-2"></i>Needs attention</h5>
+                    <p class="mb-2">Submissions awaiting review: <strong>@Model.PendingSubmissions</strong></p>
+                    <a href="/Assignments" class="btn btn-primary btn-sm">Open assignments</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold"><i class="fas fa-clock me-2 text-primary"></i>Today's timetable</div>
+                <div class="card-body">
+                    @if (Model.TodaySchedule.Any())
+                    {
+                        @foreach (var item in Model.TodaySchedule)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded bg-light">
+                                <div>
+                                    <strong>@item.Subject</strong>
+                                    <div class="text-muted small">@item.Class</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-semibold">@item.TimeRange</div>
+                                    <div class="text-muted small">@item.Room</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center mb-0">No periods scheduled for today.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold"><i class="fas fa-file-alt me-2 text-primary"></i>Recent assignments you created</div>
+                <div class="card-body">
+                    @if (Model.MyAssignments.Any())
+                    {
+                        @foreach (var assignment in Model.MyAssignments.Take(6))
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
+                                <div>
+                                    <strong>@assignment.Title</strong>
+                                    <div class="text-muted small">@(assignment.Course?.Title ?? "Course")</div>
+                                </div>
+                                <div class="text-end small">
+                                    <div>Due @assignment.DueDate.ToString("MMM dd")</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center mb-0">Create your first assignment from a course.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

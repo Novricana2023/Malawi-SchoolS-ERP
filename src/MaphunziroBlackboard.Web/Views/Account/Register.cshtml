@@ -1,0 +1,272 @@
+@model MaphunziroBlackboard.Web.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <img src="~/images/branding/maphunziro-logo.svg" alt="Maphunziro Board" height="60" class="mb-3 brand-logo-img">
+                    <h3 class="fw-bold">Institution onboarding</h3>
+                    <p class="text-muted">Create the first accounts for your school or college. Learners and families are usually added by administrators after your institution is set up.</p>
+                </div>
+
+                <form asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FirstName" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input asp-for="FirstName" class="form-control" placeholder="First name" />
+                            </div>
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LastName" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input asp-for="LastName" class="form-control" placeholder="Last name" />
+                            </div>
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input asp-for="Email" class="form-control" placeholder="Email address" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PhoneNumber" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-phone"></i>
+                            </span>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="Phone number" />
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DateOfBirth" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-calendar"></i>
+                            </span>
+                            <input asp-for="DateOfBirth" class="form-control" type="date" />
+                        </div>
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="UserRole" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-user-tag"></i>
+                            </span>
+                            <select asp-for="UserRole" class="form-select">
+                                <option value="">Select your role</option>
+                                <option value="Student">Student</option>
+                                <option value="Teacher">Teacher</option>
+                                <option value="Parent">Parent</option>
+                                <option value="SchoolAdmin">School Administrator</option>
+                                <option value="Accountant">Accountant</option>
+                                <option value="Librarian">Librarian</option>
+                                <option value="Registrar">Registrar</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="UserRole" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Password" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input asp-for="Password" class="form-control" placeholder="Password" type="password" id="passwordInput" />
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                                    <i class="fas fa-eye" id="passwordToggle"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                            <div class="form-text">Use at least 8 characters with upper, lower, and a number (matches sign-in rules).</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm password" type="password" id="confirmPasswordInput" />
+                                <button class="btn btn-outline-secondary" type="button" onclick="toggleConfirmPassword()">
+                                    <i class="fas fa-eye" id="confirmPasswordToggle"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input asp-for="AcceptTerms" class="form-check-input" id="termsCheck" />
+                            <label class="form-check-label" for="termsCheck">
+                                I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                            </label>
+                        </div>
+                        <span asp-validation-for="AcceptTerms" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg" id="registerBtn">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <span class="text-muted">Already have an account? </span>
+                        <a asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" class="text-decoration-none fw-bold">
+                            Sign in here
+                        </a>
+                    </div>
+                </form>
+
+                <div class="mt-4">
+                    <div class="text-center mb-3">
+                        <span class="text-muted">Or register with</span>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        @{
+                            var registerProviders = (ViewData["ExternalProviders"] as IEnumerable<string> ?? Enumerable.Empty<string>()).ToList();
+                        }
+                        @if (!registerProviders.Any())
+                        {
+                            <div class="small text-muted text-center">
+                                External signup is available after Google or Microsoft credentials are added to configuration.
+                            </div>
+                        }
+                        @foreach (var provider in registerProviders)
+                        {
+                            <form asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-primary w-100" name="provider" value="@provider">
+                                    @if (provider.Contains("Google", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <i class="fab fa-google me-2"></i>
+                                        <span>Continue with Google</span>
+                                    }
+                                    else if (provider.Contains("Microsoft", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <i class="fab fa-microsoft me-2"></i>
+                                        <span>Continue with Microsoft</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Continue with @provider</span>
+                                    }
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordToggle = document.getElementById('passwordToggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggle.classList.remove('fa-eye');
+                passwordToggle.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                passwordToggle.classList.remove('fa-eye-slash');
+                passwordToggle.classList.add('fa-eye');
+            }
+        }
+
+        function toggleConfirmPassword() {
+            const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+            const confirmPasswordToggle = document.getElementById('confirmPasswordToggle');
+            
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                confirmPasswordToggle.classList.remove('fa-eye');
+                confirmPasswordToggle.classList.add('fa-eye-slash');
+            } else {
+                confirmPasswordInput.type = 'password';
+                confirmPasswordToggle.classList.remove('fa-eye-slash');
+                confirmPasswordToggle.classList.add('fa-eye');
+            }
+        }
+
+        // Password strength indicator
+        document.getElementById('passwordInput')?.addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strength = checkPasswordStrength(password);
+            updatePasswordStrength(strength);
+        });
+
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            return strength;
+        }
+
+        function updatePasswordStrength(strength) {
+            const strengthText = document.getElementById('strengthText');
+            const strengthBar = document.getElementById('strengthBar');
+            
+            if (!strengthText || !strengthBar) return;
+            
+            const strengthLevels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+            const strengthColors = ['#dc3545', '#ffc107', '#fd7e14', '#20c997', '#198754'];
+            
+            strengthText.textContent = strengthLevels[strength] || '';
+            strengthBar.style.width = (strength * 20) + '%';
+            strengthBar.style.backgroundColor = strengthColors[strength] || '#dc3545';
+        }
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const termsCheck = document.getElementById('termsCheck');
+            if (!termsCheck.checked) {
+                e.preventDefault();
+                alert('Please accept the Terms of Service and Privacy Policy to continue.');
+                return false;
+            }
+        });
+    </script>
+}

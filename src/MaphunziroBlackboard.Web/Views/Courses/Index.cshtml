@@ -1,0 +1,167 @@
+@model IEnumerable<MaphunziroBlackboard.Domain.Entities.Course>
+@{
+    ViewData["Title"] = "Courses";
+    Layout = "_Layout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Courses</h1>
+    @if (User.IsInRole("SuperAdmin") || User.IsInRole("SchoolAdmin") || User.IsInRole("Teacher"))
+    {
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create Course
+        </a>
+    }
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Warning"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="fas fa-book fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No courses available</h4>
+        <p class="text-muted">
+            @if (User.IsInRole("SuperAdmin") || User.IsInRole("SchoolAdmin") || User.IsInRole("Teacher"))
+            {
+                <text>Create your first course to get started.</text>
+            }
+            else
+            {
+                <text>No courses are available for enrollment at this time.</text>
+            }
+        </p>
+        @if (User.IsInRole("SuperAdmin") || User.IsInRole("SchoolAdmin") || User.IsInRole("Teacher"))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create Course
+            </a>
+        }
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var course in Model)
+        {
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="course-card h-100">
+                    <div class="course-image">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="course-content">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">@course.Title</h5>
+                            <span class="badge bg-primary">@course.Code</span>
+                        </div>
+                        
+                        <p class="text-muted small mb-3">@course.ShortDescription</p>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-users me-1"></i>
+                                    @course.CurrentStudents/@course.MaxStudents students
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-signal me-1"></i>
+                                    @course.Level
+                                </small>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(course.Description))
+                        {
+                            <p class="text-muted small mb-3">@course.Description.Substring(0, Math.Min(100, course.Description.Length))...</p>
+                        }
+
+                        @{
+                            var enrollPct = course.MaxStudents > 0 ? course.CurrentStudents * 100.0 / course.MaxStudents : 0;
+                        }
+                        <div class="mb-3">
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar" style="width: @(enrollPct)%"></div>
+                            </div>
+                            <small class="text-muted">Enrollment: @(enrollPct.ToString("F0"))%</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <small class="text-muted">
+                                    <i class="fas fa-chalkboard-teacher me-1"></i>
+                                    Teachers assigned
+                                </small>
+                            </div>
+                            <div>
+                                <span class="badge @(course.IsPublished ? "bg-success" : "bg-warning")">
+                                    @(course.IsPublished ? "Published" : "Draft")
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-primary btn-sm flex-fill">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                            
+                            @if (User.IsInRole("SuperAdmin") || User.IsInRole("SchoolAdmin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            }
+                            else if (User.IsInRole("Teacher"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Add any course-specific JavaScript here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-hide alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 0.5s';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
+                }, 5000);
+            });
+        });
+    </script>
+}
