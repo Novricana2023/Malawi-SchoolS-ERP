@@ -6,7 +6,7 @@
 
 <div class="container">
     <h2>Submit: @Model.Title</h2>
-    <form asp-action="Submit" method="post" enctype="multipart/form-data">
+    <form id="submitForm" asp-action="Submit" method="post" enctype="multipart/form-data">
         <input type="hidden" name="id" value="@Model.Id" />
         <div class="mb-3">
             <label for="content" class="form-label">Notes / text</label>
@@ -16,6 +16,11 @@
             <label for="file" class="form-label">File (optional)</label>
             <input class="form-control" type="file" id="file" name="file" />
         </div>
-        <button class="btn btn-primary" type="submit">Submit</button>
+        <div class="mb-3">
+            <div class="progress" style="height:20px; display:none;">
+                <div id="uploadProgress" class="progress-bar" role="progressbar" style="width:0%">0%</div>
+            </div>
+        </div>
+        <button id="submitBtn" class="btn btn-primary" type="submit">Submit</button>
     </form>
 </div>
