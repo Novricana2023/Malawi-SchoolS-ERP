@@ -45,6 +45,7 @@ public class AssignmentSubmission : BaseEntity
     public string? Content { get; set; }
     public string? FilePath { get; set; }
     public string? FileName { get; set; }
+    public string? BlobName { get; set; }
     public long FileSize { get; set; }
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
     public SubmissionStatus Status { get; set; } = SubmissionStatus.Submitted;

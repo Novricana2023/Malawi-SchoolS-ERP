@@ -22,17 +22,17 @@ public class AzureBlobService : IBlobService
         _client = new BlobServiceClient(conn);
     }
 
-    public async Task<string> UploadFileAsync(IFormFile file, string containerName, string blobName = null)
+    public async Task<BlobUploadResult> UploadFileAsync(IFormFile file, string containerName, string? blobName = null)
     {
-        if (file == null || file.Length == 0) return string.Empty;
+        if (file == null || file.Length == 0) return null;
         var container = _client.GetBlobContainerClient(containerName);
-        await container.CreateIfNotExistsAsync(PublicAccessType.None);
+        await container.CreateIfNotExistsAsync(PublicAccessType.Blob);
         blobName ??= Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
         var blob = container.GetBlobClient(blobName);
 
         using var stream = file.OpenReadStream();
         await blob.UploadAsync(stream, overwrite: true);
-        return blob.Uri.ToString();
+        return new BlobUploadResult { Url = blob.Uri.ToString(), BlobName = blobName };
     }
 
     public async Task DeleteFileAsync(string containerName, string blobName)

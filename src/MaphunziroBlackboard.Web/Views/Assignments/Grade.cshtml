@@ -1,0 +1,29 @@
+@model MaphunziroBlackboard.Domain.Entities.AssignmentSubmission
+@{
+    ViewData["Title"] = "Grade Submission";
+    Layout = "_Layout";
+}
+<div class="container">
+    <h2>Grade: @Model.Title</h2>
+    <dl class="row">
+        <dt class="col-sm-3">Student</dt>
+        <dd class="col-sm-9">@Model.Student?.FullName</dd>
+        <dt class="col-sm-3">Submitted</dt>
+        <dd class="col-sm-9">@Model.SubmittedAt.ToLocalTime().ToString("g")</dd>
+        <dt class="col-sm-3">File</dt>
+        <dd class="col-sm-9">@if(!string.IsNullOrEmpty(Model.FilePath)) { <a href="@Model.FilePath" target="_blank">Download</a> } else { <span>No file</span> }</dd>
+    </dl>
+
+    <form method="post" asp-action="Grade">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <div class="mb-3">
+            <label class="form-label">Score</label>
+            <input class="form-control" name="score" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Feedback</label>
+            <textarea class="form-control" name="feedback"></textarea>
+        </div>
+        <button class="btn btn-primary">Save grade</button>
+    </form>
+</div>

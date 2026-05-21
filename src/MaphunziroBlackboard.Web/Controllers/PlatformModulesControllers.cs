@@ -79,6 +79,66 @@ public class AssignmentsController : Controller
             "fa-tasks",
             "Students submit work here; teachers review in Teaching hub"));
 
+    [Authorize(Roles = "Teacher")]
+    [HttpGet]
+    public async Task<IActionResult> ListSubmissions(int assignmentId)
+    {
+        var submissions = await _context.AssignmentSubmissions
+            .Include(s => s.Student)
+            .Where(s => s.AssignmentId == assignmentId && !s.IsDeleted)
+            .OrderByDescending(s => s.SubmittedAt)
+            .ToListAsync();
+
+        return View("ListSubmissions", submissions);
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpGet]
+    public async Task<IActionResult> Grade(int id)
+    {
+        var submission = await _context.AssignmentSubmissions
+            .Include(s => s.Student)
+            .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
+        if (submission == null) return NotFound();
+        return View(submission);
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Grade(int id, decimal? score, string feedback)
+    {
+        var submission = await _context.AssignmentSubmissions.FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
+        if (submission == null) return NotFound();
+
+        submission.Score = score;
+        submission.Feedback = feedback;
+        submission.Status = SubmissionStatus.Graded;
+        submission.GradedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction("ListSubmissions", new { assignmentId = submission.AssignmentId });
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteSubmission(int id)
+    {
+        var submission = await _context.AssignmentSubmissions.FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
+        if (submission == null) return NotFound();
+
+        if (!string.IsNullOrEmpty(submission.BlobName))
+        {
+            var container = _configuration["BlobStorage:Container"] ?? "assignments";
+            await _blobService.DeleteFileAsync(container, submission.BlobName);
+        }
+
+        submission.IsDeleted = true;
+        await _context.SaveChangesAsync();
+        return RedirectToAction("ListSubmissions", new { assignmentId = submission.AssignmentId });
+    }
+
     [Authorize(Roles = "Student")]
     [HttpGet]
     public async Task<IActionResult> Submit(int id)
@@ -105,10 +165,27 @@ public class AssignmentsController : Controller
             return Forbid();
 
         string container = _configuration["BlobStorage:Container"] ?? "assignments";
-        string blobUrl = null;
+        BlobUploadResult? uploadResult = null;
+
+        // Basic file validation
+        var maxSize = long.TryParse(_configuration["FileValidation:MaxBytes"], out var m) ? m : 10 * 1024 * 1024;
+        var allowed = (_configuration["FileValidation:AllowedTypes"] ?? "pdf,doc,docx,txt,zip").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
         if (file != null && file.Length > 0)
         {
-            blobUrl = await _blobService.UploadFileAsync(file, container);
+            if (file.Length > maxSize)
+                ModelState.AddModelError("file", $"File size exceeds limit of {maxSize} bytes.");
+
+            var ext = Path.GetExtension(file.FileName).TrimStart('.').ToLowerInvariant();
+            if (!allowed.Contains(ext))
+                ModelState.AddModelError("file", "File type not allowed.");
+
+            if (!ModelState.IsValid)
+            {
+                return View(assignment);
+            }
+
+            uploadResult = await _blobService.UploadFileAsync(file, container);
         }
 
         var submission = new AssignmentSubmission
@@ -119,7 +196,8 @@ public class AssignmentsController : Controller
             Content = content,
             FileName = file?.FileName,
             FileSize = file?.Length ?? 0,
-            FilePath = blobUrl,
+            FilePath = uploadResult?.Url,
+            BlobName = uploadResult?.BlobName,
             SubmittedAt = DateTime.UtcNow,
             Status = SubmissionStatus.Submitted
         };
