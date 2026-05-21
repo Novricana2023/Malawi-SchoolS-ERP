@@ -145,6 +145,9 @@ builder.Services.AddSession(options =>
 // Add distributed memory cache for session
 builder.Services.AddDistributedMemoryCache();
 
+// Register blob storage service (Azure Blob)
+builder.Services.AddSingleton<MaphunziroBlackboard.Web.Services.IBlobService, MaphunziroBlackboard.Web.Services.AzureBlobService>();
+
 var app = builder.Build();
 
 // Ensure logs folder exists in content root so stdout logging on Azure can write files
