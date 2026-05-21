@@ -147,6 +147,18 @@ builder.Services.AddDistributedMemoryCache();
 
 var app = builder.Build();
 
+// Ensure logs folder exists in content root so stdout logging on Azure can write files
+try
+{
+    var logsPath = Path.Combine(app.Environment.ContentRootPath, "logs");
+    if (!Directory.Exists(logsPath))
+        Directory.CreateDirectory(logsPath);
+}
+catch
+{
+    // ignore - creating logs folder is best-effort
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
