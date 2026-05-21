@@ -37,6 +37,15 @@ public class AccountController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Login(string returnUrl = null)
     {
+        // Prevent signed-in users from accessing the login page
+        if (_signInManager.IsSignedIn(User))
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
+        // Prevent caching so the browser back button won't show the login page after sign-in
+        Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+        Response.Headers["Pragma"] = "no-cache";
+        Response.Headers["Expires"] = "0";
         ViewData["ReturnUrl"] = returnUrl;
         await PopulateExternalProvidersAsync();
         return View();
@@ -85,6 +94,13 @@ public class AccountController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Register(string returnUrl = null)
     {
+        if (_signInManager.IsSignedIn(User))
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
+        Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+        Response.Headers["Pragma"] = "no-cache";
+        Response.Headers["Expires"] = "0";
         ViewData["ReturnUrl"] = returnUrl;
         await PopulateExternalProvidersAsync();
         return View();

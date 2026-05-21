@@ -64,12 +64,14 @@ public class AssignmentsController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IBlobService _blobService;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AssignmentsController> _logger;
 
-    public AssignmentsController(ApplicationDbContext context, IBlobService blobService, IConfiguration configuration)
+    public AssignmentsController(ApplicationDbContext context, IBlobService blobService, IConfiguration configuration, ILogger<AssignmentsController> logger)
     {
         _context = context;
         _blobService = blobService;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public IActionResult Index() =>
@@ -83,6 +85,14 @@ public class AssignmentsController : Controller
     [HttpGet]
     public async Task<IActionResult> ListSubmissions(int assignmentId)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == userId && !t.IsDeleted);
+        if (teacher == null) return Forbid();
+
+        var assignment = await _context.Assignments.FirstOrDefaultAsync(a => a.Id == assignmentId && !a.IsDeleted);
+        if (assignment == null) return NotFound();
+        if (assignment.TeacherId != teacher.Id) return Forbid();
+
         var submissions = await _context.AssignmentSubmissions
             .Include(s => s.Student)
             .Where(s => s.AssignmentId == assignmentId && !s.IsDeleted)
@@ -98,8 +108,15 @@ public class AssignmentsController : Controller
     {
         var submission = await _context.AssignmentSubmissions
             .Include(s => s.Student)
+            .Include(s => s.Assignment)
             .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
         if (submission == null) return NotFound();
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == userId && !t.IsDeleted);
+        if (teacher == null) return Forbid();
+        if (submission.Assignment.TeacherId != teacher.Id) return Forbid();
+
         return View(submission);
     }
 
@@ -111,13 +128,40 @@ public class AssignmentsController : Controller
         var submission = await _context.AssignmentSubmissions.FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
         if (submission == null) return NotFound();
 
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == userId && !t.IsDeleted);
+        if (teacher == null) return Forbid();
+
+        var assignment = await _context.Assignments.FirstOrDefaultAsync(a => a.Id == submission.AssignmentId && !a.IsDeleted);
+        if (assignment == null || assignment.TeacherId != teacher.Id) return Forbid();
+
         submission.Score = score;
         submission.Feedback = feedback;
         submission.Status = SubmissionStatus.Graded;
         submission.GradedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Teacher {TeacherId} graded submission {SubmissionId} with score {Score}", teacher.Id, submission.Id, score);
         return RedirectToAction("ListSubmissions", new { assignmentId = submission.AssignmentId });
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> DownloadSubmission(int id)
+    {
+        var submission = await _context.AssignmentSubmissions.FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
+        if (submission == null) return NotFound();
+
+        if (!string.IsNullOrEmpty(submission.BlobName))
+        {
+            var container = _configuration["BlobStorage:Container"] ?? "assignments";
+            // Try generate SAS via service; if not available, redirect to stored FilePath
+            var sasUrl = (_blobService as AzureBlobService)?.GenerateBlobSasUrl(container, submission.BlobName, 60);
+            if (!string.IsNullOrEmpty(sasUrl)) return Redirect(sasUrl);
+            if (!string.IsNullOrEmpty(submission.FilePath)) return Redirect(submission.FilePath);
+        }
+
+        return NotFound();
     }
 
     [Authorize(Roles = "Teacher")]
