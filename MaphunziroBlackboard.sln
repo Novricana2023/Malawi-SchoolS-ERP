@@ -1,16 +1,16 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11723.189 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaphunziroBlackboard.Web", "src\MaphunziroBlackboard.Web\MaphunziroBlackboard.Web.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaphunziroBlackboard.Core", "src\MaphunziroBlackboard.Core\MaphunziroBlackboard.Core.csproj", "{B2C3D4E5-F6G7-8901-BCDE-F23456789012}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaphunziroBlackboard.Core", "src\MaphunziroBlackboard.Core\MaphunziroBlackboard.Core.csproj", "{07F1BA13-38D7-4BBD-AFEC-0A192359069E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaphunziroBlackboard.Infrastructure", "src\MaphunziroBlackboard.Infrastructure\MaphunziroBlackboard.Infrastructure.csproj", "{C3D4E5F6-G7H8-9012-CDEF-345678901234}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaphunziroBlackboard.Infrastructure", "src\MaphunziroBlackboard.Infrastructure\MaphunziroBlackboard.Infrastructure.csproj", "{E1B62D0C-7269-471E-85EB-3035C4D5AF39}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaphunziroBlackboard.Application", "src\MaphunziroBlackboard.Application\MaphunziroBlackboard.Application.csproj", "{D4E5F6G7-H8I9-0123-DEFG-456789012345}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaphunziroBlackboard.Application", "src\MaphunziroBlackboard.Application\MaphunziroBlackboard.Application.csproj", "{5189F437-AEA4-423A-8CF0-37CF4496AB9E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaphunziroBlackboard.Domain", "src\MaphunziroBlackboard.Domain\MaphunziroBlackboard.Domain.csproj", "{E5F6G7H8-I9J0-1234-EFGH-567890123456}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaphunziroBlackboard.Domain", "src\MaphunziroBlackboard.Domain\MaphunziroBlackboard.Domain.csproj", "{A650B0A2-AAF2-4F22-9FCD-FE0CF1325559}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,22 +22,22 @@ Global
 		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B2C3D4E5-F6G7-8901-BCDE-F23456789012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B2C3D4E5-F6G7-8901-BCDE-F23456789012}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B2C3D4E5-F6G7-8901-BCDE-F23456789012}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B2C3D4E5-F6G7-8901-BCDE-F23456789012}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C3D4E5F6-G7H8-9012-CDEF-345678901234}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C3D4E5F6-G7H8-9012-CDEF-345678901234}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C3D4E5F6-G7H8-9012-CDEF-345678901234}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C3D4E5F6-G7H8-9012-CDEF-345678901234}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D4E5F6G7-H8I9-0123-DEFG-456789012345}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D4E5F6G7-H8I9-0123-DEFG-456789012345}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D4E5F6G7-H8I9-0123-DEFG-456789012345}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D4E5F6G7-H8I9-0123-DEFG-456789012345}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E5F6G7H8-I9J0-1234-EFGH-567890123456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E5F6G7H8-I9J0-1234-EFGH-567890123456}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E5F6G7H8-I9J0-1234-EFGH-567890123456}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E5F6G7H8-I9J0-1234-EFGH-567890123456}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07F1BA13-38D7-4BBD-AFEC-0A192359069E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07F1BA13-38D7-4BBD-AFEC-0A192359069E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07F1BA13-38D7-4BBD-AFEC-0A192359069E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07F1BA13-38D7-4BBD-AFEC-0A192359069E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1B62D0C-7269-471E-85EB-3035C4D5AF39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1B62D0C-7269-471E-85EB-3035C4D5AF39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1B62D0C-7269-471E-85EB-3035C4D5AF39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1B62D0C-7269-471E-85EB-3035C4D5AF39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5189F437-AEA4-423A-8CF0-37CF4496AB9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5189F437-AEA4-423A-8CF0-37CF4496AB9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5189F437-AEA4-423A-8CF0-37CF4496AB9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5189F437-AEA4-423A-8CF0-37CF4496AB9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A650B0A2-AAF2-4F22-9FCD-FE0CF1325559}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A650B0A2-AAF2-4F22-9FCD-FE0CF1325559}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A650B0A2-AAF2-4F22-9FCD-FE0CF1325559}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A650B0A2-AAF2-4F22-9FCD-FE0CF1325559}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

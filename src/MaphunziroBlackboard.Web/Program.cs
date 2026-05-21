@@ -33,9 +33,39 @@ builder.Host.UseSerilog((context, services, configuration) =>
 builder.Services.AddControllersWithViews();
 
 // Database configuration
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
+
+// Detect local-only connection strings that will not work on Azure
+static bool LooksLikeLocalDb(string cs)
+{
+    if (string.IsNullOrWhiteSpace(cs)) return false;
+    cs = cs.ToLowerInvariant();
+    return cs.Contains("(localdb)") || cs.Contains("localhost") || cs.Contains("trusted_connection") || cs.Contains("integrated security") || cs.Contains("attachdbfilename");
+}
+
+var hasConnection = !string.IsNullOrWhiteSpace(connectionString);
+var looksLocal = LooksLikeLocalDb(connectionString);
+
+if (!hasConnection || (builder.Environment.IsProduction() && looksLocal))
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        // If no connection string is provided in development, fall back to an in-memory DB to keep the app runnable.
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseInMemoryDatabase("DevelopmentDb"));
+    }
+    else
+    {
+        // In production (e.g., Azure) a missing or LocalDB/Windows-auth connection string is a configuration error — fail fast with a clear message.
+        throw new InvalidOperationException("Invalid or missing connection string 'DefaultConnection' for Production. On Azure set the connection string in App Service -> Configuration -> Connection strings (name: DefaultConnection) to a valid Azure SQL connection string (e.g. 'Server=tcp:<server>.database.windows.net,1433;Initial Catalog=<db>;User ID=<user>;Password=<pw>;'). Do NOT use (localdb) or Trusted_Connection on App Service.");
+    }
+}
+else
+{
+    // Use SQL Server for non-development or when a valid connection string is provided
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connectionString));
+}
 
 // Identity configuration
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -149,10 +179,113 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Seed data
-await SeedData(app);
+// Lightweight health check endpoint for Azure / monitoring probes
+app.MapGet("/health", async (IServiceProvider services) =>
+{
+    using var scope = services.CreateScope();
+    var sp = scope.ServiceProvider;
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connectionConfigured = !string.IsNullOrWhiteSpace(config.GetConnectionString("DefaultConnection"));
+    var context = sp.GetService<ApplicationDbContext>();
 
-app.Run();
+    bool canConnect = false;
+    string dbError = null;
+    if (context == null)
+    {
+        dbError = "ApplicationDbContext is not registered.";
+    }
+    else
+    {
+        try
+        {
+            canConnect = await context.Database.CanConnectAsync();
+        }
+        catch (Exception ex)
+        {
+            dbError = ex.Message;
+        }
+    }
+
+    var status = (connectionConfigured && canConnect && dbError == null) ? "Healthy" : "Unhealthy";
+
+    return Results.Json(new
+    {
+        status,
+        connectionStringConfigured = connectionConfigured,
+        canConnect,
+        dbError
+    });
+});
+
+// Diagnostic endpoint that surfaces non-sensitive guidance for common Azure issues
+app.MapGet("/diagnostics", async (IServiceProvider services) =>
+{
+    using var scope = services.CreateScope();
+    var sp = scope.ServiceProvider;
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connectionConfigured = !string.IsNullOrWhiteSpace(config.GetConnectionString("DefaultConnection"));
+    var context = sp.GetService<ApplicationDbContext>();
+
+    bool canConnect = false;
+    string dbError = null;
+    int pendingMigrations = 0;
+
+    if (context != null)
+    {
+        try
+        {
+            canConnect = await context.Database.CanConnectAsync();
+            var pending = await context.Database.GetPendingMigrationsAsync();
+            pendingMigrations = pending.Count();
+        }
+        catch (Exception ex)
+        {
+            dbError = ex.Message;
+        }
+    }
+
+    var recommendations = new List<string>();
+    if (!connectionConfigured)
+        recommendations.Add("DefaultConnection is not configured. On Azure set the connection string in App Service -> Configuration -> Connection strings (name: DefaultConnection).");
+    if (connectionConfigured && !canConnect)
+    {
+        recommendations.Add("Cannot connect to database. Verify the connection string, database server firewall rules, network restrictions, and credentials.");
+        recommendations.Add("If using Azure SQL, ensure 'Allow Azure services and resources to access this server' is enabled or add the App Service outbound IPs to the server firewall.");
+    }
+    if (pendingMigrations > 0)
+        recommendations.Add($"There are {pendingMigrations} pending EF Core migrations. Apply migrations or enable automatic migrations during deployment.");
+
+    if (recommendations.Count == 0)
+        recommendations.Add("No obvious issues detected. Check application logs for details.");
+
+    return Results.Json(new
+    {
+        connectionStringConfigured = connectionConfigured,
+        canConnect,
+        pendingMigrations,
+        dbError,
+        recommendations
+    });
+});
+
+// Seed data and run inside a try/catch so startup failures are logged clearly
+try
+{
+    await SeedData(app);
+    app.Run();
+}
+catch (Exception ex)
+{
+    // Capture fatal startup exceptions in Serilog before the process terminates
+    Log.Fatal(ex, "Host terminated unexpectedly during startup");
+    // Optionally surface a friendly message to the console for App Service diagnostics
+    Console.Error.WriteLine("Application failed to start: " + ex.Message);
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 
 async Task SeedData(WebApplication app)
 {

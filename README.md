@@ -348,3 +348,24 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 **Maphunziro Blackboard** - Empowering Education in Malawi 🇲🇼
 
 Built with ❤️ for Malawian schools
+
+## 📦 Deployment to Azure App Service (quick guide)
+
+1. Create an Azure App Service (Linux or Windows) that supports .NET 8.
+2. Create an Azure SQL Database (or use an existing SQL Server) and note server name, database name, user, and password.
+3. In the App Service, configure the connection string:
+   - Go to App Service > Configuration > Connection strings
+   - Add a connection string named `DefaultConnection` with value:
+     `Server=tcp:<your-server>.database.windows.net,1433;Initial Catalog=<your-db>;User ID=<your-user>;Password=<your-password>;MultipleActiveResultSets=true;TrustServerCertificate=False;Encrypt=True;`
+   - Set Type to `SQLAzure`.
+4. In App Service > Configuration > Application settings, add any required keys (OAuth client ids/secrets) as environment variables.
+5. Publish from Visual Studio or deploy the `publish` folder created by `dotnet publish`.
+6. After deployment, enable App Service logs (App Service > Diagnostic settings) and enable filesystem logging temporarily to inspect stdout logs.
+
+Notes:
+- Do NOT use `(localdb)` or `Trusted_Connection` on Azure. Use SQL auth or managed identity.
+- If your app fails on startup, enable stdoutLog in the generated `web.config` and check `LogFiles\stdout` in Kudu.
+
+For more detailed deployment steps and troubleshooting, see docs/deployment.md
+
+
