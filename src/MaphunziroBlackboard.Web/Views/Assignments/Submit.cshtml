@@ -1,0 +1,21 @@
+@model MaphunziroBlackboard.Domain.Entities.Assignment
+@{
+    ViewData["Title"] = "Submit Assignment";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <h2>Submit: @Model.Title</h2>
+    <form asp-action="Submit" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <div class="mb-3">
+            <label for="content" class="form-label">Notes / text</label>
+            <textarea class="form-control" id="content" name="content" rows="4"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="file" class="form-label">File (optional)</label>
+            <input class="form-control" type="file" id="file" name="file" />
+        </div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+</div>
