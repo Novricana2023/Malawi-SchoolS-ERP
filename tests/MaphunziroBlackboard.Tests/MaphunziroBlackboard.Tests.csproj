@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>net8.0</TargetFramework>
+	<IsPackable>false</IsPackable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+	<PackageReference Include="Moq" Version="4.20.0" />
+	<PackageReference Include="xunit" Version="2.5.3" />
+	<PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+	<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="..\src\MaphunziroBlackboard.Web\MaphunziroBlackboard.Web.csproj" />
+	<ProjectReference Include="..\src\MaphunziroBlackboard.Infrastructure\MaphunziroBlackboard.Infrastructure.csproj" />
+	<ProjectReference Include="..\src\MaphunziroBlackboard.Domain\MaphunziroBlackboard.Domain.csproj" />
+  </ItemGroup>
+</Project>
